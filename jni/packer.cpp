@@ -13,7 +13,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <vector>
-#include <bits/unique_ptr.h>
+//#include <bits/unique_ptr.h>
 
 #include "common.h"
 #include "dex_header.h"
@@ -64,8 +64,10 @@ char g_fake_dex_magic[256] = {0};
 void *g_decrypt_base = NULL;
 void *g_ArtHandle = NULL;
 
-const char *AES_KEYCODE = "1234567812345678";
-const char *AES_IV = "1234567812345678";
+//const char *AES_KEYCODE = "1234567812345678";
+const unsigned char AES_KEYCODE[17] = "1234567812345678";
+//const char *AES_IV = "1234567812345678";
+const unsigned char AES_IV[16] = {0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38};
 
 void native_attachBaseContext(JNIEnv *env, jobject obj, jobject ctx);
 void native_onCreate(JNIEnv *, jobject, jobject);
@@ -319,10 +321,12 @@ void replace_cookie_M(JNIEnv *env, jobject mini_dex_obj, jlong value)
     int dexbase = *(int *)(ptr + 4);
     int dexsize = *(int *)(ptr + 8);
     LOGD("[+]mini dex array len :%d,dex magic:%x,dexsize:%x", arraylen, *(int *)dexbase, dexsize);
+    
     // very important
     // jlong* tmp=mix_element;
     // *tmp=*c_dex_cookie;
     *mix_element = value;
+
     // 更新mCookie
     env->ReleaseLongArrayElements((jlongArray)mCookie, mix_element, 0);
     if (env->ExceptionCheck())
@@ -555,6 +559,8 @@ void write_file(const char *path, void *buffer, int size)
 //     return out;
 // }
 
+/*
+
 char *tiny_aes_encrypt_cbc(char *in, int inLen, int *outLen)
 {
 
@@ -595,23 +601,24 @@ char *tiny_aes_encrypt_cbc(char *in, int inLen, int *outLen)
 
     return inputData;
 }
+*/
 
 char *tiny_aes_decrypt_cbc(char *in, int inLen, int *outLen)
 {
-
-#define AES_BLOCK_SIZE 16
+    #define AES_BLOCK_SIZE 16
+/*
+#
     unsigned char Key[AES_BLOCK_SIZE + 1];
     unsigned char ivec[AES_BLOCK_SIZE];
+    
 
     //设置密钥key
     memset(Key, 0x00, sizeof(Key));
     memcpy(Key, AES_KEYCODE, 16);
-
     memcpy(ivec, AES_IV, 16);
-
+*/
     struct AES_ctx ctx;
-    AES_init_ctx_iv(&ctx, Key, ivec);
-
+    AES_init_ctx_iv(&ctx, AES_KEYCODE, AES_IV);
     AES_CBC_decrypt_buffer(&ctx, (uint8_t *)in, (uint32_t)inLen);
 
     //去掉padding字符串
@@ -957,7 +964,7 @@ void native_attachBaseContext(JNIEnv *env, jobject thiz, jobject ctx)
             LOGE("[-]mkdir %s error:%s", g_jiagu_dir, strerror(errno));
         }
     }
-    //从assets目录提取加密dex
+    //　Extract encrypted dex from assets directory
     extract_file(env, ctx, jiaguPath, JIAMI_MAGIC);
     mem_loadDex(env, ctx, jiaguPath);
 } // native_attachBaseContext
