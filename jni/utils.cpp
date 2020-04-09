@@ -173,7 +173,7 @@ int extract_file(JNIEnv *env, jobject ctx, const char *szDexPath, const char *fi
         LOGD("[+]File %s have existed", szDexPath);
         return 0;
     }
-    // jiami.dat不存在，开始提取
+    // jiami.dat does not exist, start extraction
     else
     {
         AAssetManager *mgr;

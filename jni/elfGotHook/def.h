@@ -81,7 +81,7 @@
 #define ELF_R_TYPE(i)    ELF64_R_TYPE(i)
 #else
 
-typedef Elf32_Word Elf32_Xword;
+//typedef Elf32_Word Elf32_Xword;
 #define ElfW(what)       Elf32_ ## what
 // #if __ANDROID_API__ > 19
 #define ELF_R_SYM(i)     ELF32_R_SYM(i)
