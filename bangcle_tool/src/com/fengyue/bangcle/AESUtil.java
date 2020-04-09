@@ -24,9 +24,11 @@ public class AESUtil {
 
 	
 	public static byte[] encrypt(String content, String key) {  
+        System.out.println("AES key: " + key);
+        System.out.println("AES IV: " + VIPARA);
         try {  
             SecretKeySpec skey = new SecretKeySpec(key.getBytes(), algorithm);  
-            IvParameterSpec iv = new IvParameterSpec(key.getBytes());  
+            IvParameterSpec iv = new IvParameterSpec(VIPARA.getBytes());  
             Cipher cipher = Cipher.getInstance(transformation);  
             byte[] byteContent = content.getBytes(charset);  
             
@@ -40,9 +42,11 @@ public class AESUtil {
     }  
 	
 	public static byte[] encrypt(byte[] content, String key) {  
+        System.out.println("AES key: " + key);
+        System.out.println("AES IV: " + VIPARA);
         try {  
             SecretKeySpec skey = new SecretKeySpec(key.getBytes(), algorithm);  
-            IvParameterSpec iv = new IvParameterSpec(key.getBytes());  
+            IvParameterSpec iv = new IvParameterSpec(VIPARA.getBytes());  
             Cipher cipher = Cipher.getInstance(transformation);  
             
             cipher.init(Cipher.ENCRYPT_MODE, skey, iv);// 初始化  

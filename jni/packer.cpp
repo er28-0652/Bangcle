@@ -65,7 +65,9 @@ void *g_decrypt_base = NULL;
 void *g_ArtHandle = NULL;
 
 //const char *AES_KEYCODE = "1234567812345678";
-const unsigned char AES_KEYCODE[17] = "1234567812345678";
+
+const unsigned char AES_KEYCODE[17] = "ghidraisthebest!";
+
 //const char *AES_IV = "1234567812345678";
 const unsigned char AES_IV[16] = {0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38};
 
@@ -321,7 +323,11 @@ void replace_cookie_M(JNIEnv *env, jobject mini_dex_obj, jlong value)
     int dexbase = *(int *)(ptr + 4);
     int dexsize = *(int *)(ptr + 8);
     LOGD("[+]mini dex array len :%d,dex magic:%x,dexsize:%x", arraylen, *(int *)dexbase, dexsize);
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 4d37ff2c39bd63738806b5f1d4fd10895e624d31
     // very important
     // jlong* tmp=mix_element;
     // *tmp=*c_dex_cookie;
