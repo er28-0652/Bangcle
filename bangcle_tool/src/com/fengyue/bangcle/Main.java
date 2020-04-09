@@ -22,7 +22,7 @@ import org.dom4j.io.XMLWriter;
  */
 public class Main {
 	private static final String DEX_APP_NAME = "com.storm.fengyue.StubApplication";
-	private static  final String AES_KEY="1234567812345678";
+	private static  final String AES_KEY = "ghidraisthebest!";
 	private static final SimpleDateFormat sdf = new SimpleDateFormat(
 			"yyyyMMddHHmmss");
 	private static Config config;
