@@ -40,19 +40,23 @@ public class Main {
 			return;
 		}
 		
-		String apkName = args[1];
 //		String apkName="msgnow-release.apk";
 //		String apkName="unpack_permmgr.apk";
 //		String apkName="com.aispeech.weiyu_2.apk";
-		String apkPath = getWorkPath() + File.separator + apkName;
+		String apkPath = new File(args[1]).getAbsolutePath();
+		String apkName = new File(apkPath).getName();
+		System.out.println("apkPath: " + apkPath);
+		System.out.println("apkName: " + apkName);
 		
 		
 		// 反编译目录
 		String workPath = getWorkPath();
+		System.out.println("workPath: " + workPath);
 		String toolsPath = workPath + File.separator + "tools";
-		int pos = apkName.lastIndexOf(".");
-		String decompiledDirName = apkName.substring(0, pos);
-		System.out.println("apkPath:" + apkPath + " decompiledDirName:" + decompiledDirName);
+		// int pos = apkName.lastIndexOf(".");
+		// String decompiledDirName = apkName.substring(0, pos);
+		String decompiledDirName = apkName.substring(0, apkName.lastIndexOf("."));
+		System.out.println("apkPath: " + apkPath + " decompiledDirName: " + decompiledDirName);
 		
 		
 		// 删除反编译目录
@@ -74,10 +78,10 @@ public class Main {
 
 		try {
 			long startTime = System.currentTimeMillis();
-			System.out.println("Decompiling" + apkPath);
+			System.out.println("Decompiling " + apkPath);
 
 			// 确保apktool.jar放在工作目录下
-			SystemCommand.execute("java -jar tools/apktool.jar d " + apkPath + " -o " + decompiledFile.getAbsolutePath()+" -s -f");
+			SystemCommand.execute("java -jar " + toolsPath + "/apktool.jar d " + apkPath + " -o " + decompiledFile.getAbsolutePath()+" -s -f");
 			System.out.println("End of decompilation, generate directory" + decompiledFile.getAbsolutePath());
 			
 			decompiled = true;
@@ -145,13 +149,13 @@ public class Main {
 					String outputPath = workPath + File.separator + "output" + File.separator + apkNewName;
 					String outputAlignPath = workPath + File.separator + "output" + File.separator + apkNewAlignName;
 					String outputSignPath = workPath + File.separator + "output" + File.separator + apkNewSignName;
-					SystemCommand.execute("java -jar tools/apktool.jar b " + decompiledPath + " -o " + outputPath);
+					SystemCommand.execute("java -jar " + toolsPath + "/apktool.jar b " + decompiledPath + " -o " + outputPath);
 					System.out.println("Compile completed");
 					System.out.println("running zipalign");
 					zipalign(outputPath, outputAlignPath);
 					System.out.println("align completed");
 					System.out.println("Signing Apk");
-					signApk_x509(outputAlignPath, outputSignPath);
+					signApk_x509(toolsPath, outputAlignPath, outputSignPath);
 					System.out.println("Re-signature completed");
 					System.out.println("Reinforced Apk Catalog:"+outputSignPath);
 				} catch (IOException e) {
@@ -185,9 +189,9 @@ public class Main {
 				
 	}
 
-	private static void signApk_x509(String unsignedApkPath, String signedApkPath){
+	private static void signApk_x509(String toolsPath, String unsignedApkPath, String signedApkPath){
 		try {
-			String command = "java -jar tools/apksigner.jar sign --cert tools/testkey.x509.pem  --key tools/testkey.pk8 --in "+ unsignedApkPath + "  --out " + signedApkPath;
+			String command = "java -jar " + toolsPath + "/apksigner.jar sign --cert " + toolsPath + "/testkey.x509.pem  --key " + toolsPath + "/testkey.pk8 --in "+ unsignedApkPath + "  --out " + signedApkPath;
 			
 			SystemCommand.execute(command);
 		} catch (IOException e) {
@@ -341,7 +345,7 @@ public class Main {
 	}
 
 	private static String getWorkPath() {
-		return System.getProperty("user.dir");
+		return new File(ClassLoader.getSystemClassLoader().getResource(".").getPath()).getAbsolutePath();
 	}
 
 	static class Config {
