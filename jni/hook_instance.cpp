@@ -34,10 +34,10 @@ int new_open(const char *pathname, int flags, mode_t mode)
 
     if (strstr(pathname, g_fake_dex_magic))
     {
-        LOGD("[+]my open pathname:%s,result:%d", pathname, result);
+        // LOGD("[+]my open pathname:%s,result:%d", pathname, result);
         if (result == -1)
         {
-            LOGE("[-]my open failed error:%s", strerror(errno));
+            // LOGE("[-]my open failed error:%s", strerror(errno));
         }
     }
     return result;
@@ -58,16 +58,16 @@ int new_fstat(int fd, struct stat *buf)
     
     if (readlink(fdlinkstr, linkPath, 256) >= 0)
     {
-        // LOGD("[+]new fstat file:%s",linkPath);
+        // // LOGD("[+]new fstat file:%s",linkPath);
         if (strstr(linkPath,(char*)g_fake_dex_magic))
         {
             buf->st_size = g_dex_size;
-            LOGD("[+]fstat linkPath:%s,buf.size:%d", linkPath, buf->st_size);
+            // LOGD("[+]fstat linkPath:%s,buf.size:%d", linkPath, buf->st_size);
         }
     }
     else
     {
-        LOGD("[-]fun my fstat readlink error");
+        // LOGD("[-]fun my fstat readlink error");
     }
     return result;
 }
@@ -83,17 +83,17 @@ ssize_t new_read(int fd, void *buf, size_t count)
     snprintf(fdlinkstr, 128, "/proc/%ld/fd/%d", pid, fd);
     if (readlink(fdlinkstr, linkPath, 256) >= 0)
     {
-        // LOGD("[+]my read file:%s,count:%d",linkPath,count);
+        // // LOGD("[+]my read file:%s,count:%d",linkPath,count);
         if (strstr(linkPath,(char*)g_fake_dex_magic))
         {
-            LOGD("[+]my read memcpy dex magic");
+            // LOGD("[+]my read memcpy dex magic");
             memcpy(buf, kDexMagic, 4);
             return 4;
         }
     }
     else
     {
-        LOGD("[-]my read readlink error");
+        // LOGD("[-]my read readlink error");
     }
     return old_read(fd, buf, count);
 }
@@ -109,7 +109,7 @@ ssize_t new_read_chk(int fd, void *buf, size_t nbytes, size_t buflen)
     snprintf(fdlinkstr, 128, "/proc/%ld/fd/%d", pid, fd);
     if (readlink(fdlinkstr, linkPath, 256) >= 0)
     {
-        // LOGD("[+]my read_chk file:%s,nbytes:%d,buflen:%d",linkPath,nbytes,buflen);
+        // // LOGD("[+]my read_chk file:%s,nbytes:%d,buflen:%d",linkPath,nbytes,buflen);
 
         // [+]my read_chk file:/data/data/com.ai
         // speech.weiyu/files/.jiagu/mini.dex,nbytes:4,buflen:-1
@@ -122,14 +122,14 @@ ssize_t new_read_chk(int fd, void *buf, size_t nbytes, size_t buflen)
         // /data/data/pkg_name/files/.jiagu/mini.dex
         if (strstr(linkPath,(char*)g_fake_dex_magic))
         {
-            LOGD("[+]fun my read_chk memcpy dex magic");
+            // LOGD("[+]fun my read_chk memcpy dex magic");
             memcpy(buf, kDexMagic, 4);
             return 4;
         }
     }
     else
     {
-        LOGD("[-]fun my read_chk readlink error");
+        // LOGD("[-]fun my read_chk readlink error");
     }
     return old_read_chk(fd, buf, nbytes, buflen);
 }
@@ -146,13 +146,13 @@ void *new_mmap(void *start, size_t length, int prot, int flags, int fd, off_t of
 
     if (readlink(fdlinkstr, linkPath, 256) < 0)
     {
-        LOGD("[-]my mmap readlink error");
+        // LOGD("[-]my mmap readlink error");
         return old_mmap(start, length, prot, flags, fd, offset);
     }
 
     if (strstr(linkPath,(char*)g_fake_dex_magic))
     {
-        LOGD("[+]mmap linkpath:%s,size:%d", linkPath, length);
+        // LOGD("[+]mmap linkpath:%s,size:%d", linkPath, length);
         return g_decrypt_base;
     }
     return old_mmap(start, length, prot, flags, fd, offset);
@@ -162,7 +162,7 @@ int new_munmap(void *start, size_t length)
 {
     if ((start == g_decrypt_base) || (length == g_page_size))
     {
-        LOGD("[+]munmap start:%p,length:%d", start, length);
+        // LOGD("[+]munmap start:%p,length:%d", start, length);
         return 0;
     }
     return old_munmap(start, length);
@@ -170,6 +170,6 @@ int new_munmap(void *start, size_t length)
 
 pid_t new_fork(void)
 {
-    LOGD("[+]fun my fork called");
+    // LOGD("[+]fun my fork called");
     return -1;
 }

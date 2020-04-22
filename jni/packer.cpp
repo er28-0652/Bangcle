@@ -64,12 +64,12 @@ char g_fake_dex_magic[256] = {0};
 void *g_decrypt_base = NULL;
 void *g_ArtHandle = NULL;
 
-//const char *AES_KEYCODE = "1234567812345678";
+//const char *aaaaa = "1234567812345678";
 
-const unsigned char AES_KEYCODE[17] = "ghidraisthebest!";
+const unsigned char aaaaa[17] = "ghidraisthebest!";
 
-//const char *AES_IV = "1234567812345678";
-const unsigned char AES_IV[16] = {0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38};
+//const char *ggggggg = "1234567812345678";
+const unsigned char ggggggg[16] = {0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38};
 
 void native_attachBaseContext(JNIEnv *env, jobject obj, jobject ctx);
 void native_onCreate(JNIEnv *, jobject, jobject);
@@ -95,7 +95,7 @@ unsigned char MINIDEX[292] = {
     0x03, 0x00, 0x00, 0x00, 0xA4, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
     0xD8, 0x00, 0x00, 0x00};
 
-void write_mix_dex(const char *minidex)
+__attribute__ ((visibility ("hidden"))) void write_mix_dex(const char *minidex)
 {
     // If the file exists,skip
     if (access(minidex, F_OK) == -1)
@@ -103,7 +103,7 @@ void write_mix_dex(const char *minidex)
         FILE *file = fopen(minidex, "wb");
         fwrite(MINIDEX, 292, 1, file);
         fclose(file);
-        LOGD("[+]mix dex saved at:%s", minidex);
+        //LOGD("[+]mix dex saved at:%s", minidex);
     }
 }
 
@@ -123,7 +123,7 @@ int jniRegisterNativeMethods(JNIEnv *env, const char *className, const JNINative
     }
     if ((tmp = env->RegisterNatives(clazz, gMethods, numMethods)) < 0)
     {
-        LOGE("[-]RegisterNatives failed");
+        //LOGE("[-]RegisterNatives failed");
         return -1;
     }
     return 0;
@@ -135,7 +135,7 @@ int lookup(JNINativeMethod *table, const char *name, const char *sig, void **fnP
 
     while (table[i].name != NULL)
     {
-        // LOGD("[+]lookup %d %s" ,i,table[i].name);
+        // //LOGD("[+]lookup %d %s" ,i,table[i].name);
         if ((strcmp(name, table[i].name) == 0) &&
             (strcmp(sig, table[i].signature) == 0))
         {
@@ -148,7 +148,7 @@ int lookup(JNINativeMethod *table, const char *name, const char *sig, void **fnP
     return 0;
 }
 
-char *mmap_dex(const char *szDexPath)
+__attribute__ ((visibility ("hidden"))) char *mmap_dex(const char *szDexPath)
 {
     int fd;
     struct stat buf = {0};
@@ -156,13 +156,13 @@ char *mmap_dex(const char *szDexPath)
     fd = open(szDexPath, 0);
     if (!fd)
     {
-        LOGE("[-]open %s failed:%s", szDexPath, strerror(errno));
+        //LOGE("[-]open %s failed:%s", szDexPath, strerror(errno));
         return NULL;
     }
     int status = stat(szDexPath, &buf);
     if (status == -1)
     {
-        LOGE("[-]fstat %s failed", szDexPath);
+        //LOGE("[-]fstat %s failed", szDexPath);
         return NULL;
     }
 
@@ -180,32 +180,32 @@ extern "C"
 
     void _init(void)
     {
-        LOGD("This is DT_INIT");
+        //LOGD("This is DT_INIT");
     }
 
 #ifdef __cplusplus
 }
 #endif
 
-jint mem_loadDex_dvm(JNIEnv *env, char *szPath)
+__attribute__ ((visibility ("hidden"))) jint mem_loadDex_dvm(JNIEnv *env, char *szPath)
 {
     void (*openDexFile)(const u4 *args, union JValue *pResult);
     void *ldvm = (void *)dlopen("libdvm.so", 1);
     if (!ldvm)
     {
-        LOGE("[-]could not dlopen dvm:%s", dlerror());
+        //LOGE("[-]could not dlopen dvm:%s", dlerror());
     }
     JNINativeMethod *dvm_dalvik_system_DexFile = (JNINativeMethod *)dlsym(ldvm, "dvm_dalvik_system_DexFile");
     if (0 == lookup(dvm_dalvik_system_DexFile, "openDexFile", "([B)I", (void **)&openDexFile))
     {
-        LOGE("[-]dvm_dalvik_system_DexFile method does not found ");
+        //LOGE("[-]dvm_dalvik_system_DexFile method does not found ");
         return 0;
     }
 
     char *arr;
     arr = (char *)malloc(16 + g_dex_size);
     ArrayObject *ao = (ArrayObject *)arr;
-    // LOGD("sizeof ArrayObject:%d",sizeof(ArrayObject));
+    // //LOGD("sizeof ArrayObject:%d",sizeof(ArrayObject));
     ao->length = g_dex_size;
     memcpy(arr + 16, (char *)g_decrypt_base, g_dex_size);
     munmap((char *)g_decrypt_base, g_dex_size);
@@ -220,12 +220,12 @@ jint mem_loadDex_dvm(JNIEnv *env, char *szPath)
     }
     else
     {
-        LOGE("[-]cannot get dvm_dalvik_system_DexFile addr");
+        //LOGE("[-]cannot get dvm_dalvik_system_DexFile addr");
         return 0;
     }
 }
 
-void make_dex_elements(JNIEnv *env, jobject classLoader, jobject dexFileobj)
+__attribute__ ((visibility ("hidden"))) void make_dex_elements(JNIEnv *env, jobject classLoader, jobject dexFileobj)
 {
     jclass PathClassLoader = env->GetObjectClass(classLoader);
     jclass BaseDexClassLoader = env->GetSuperclass(PathClassLoader);
@@ -241,7 +241,7 @@ void make_dex_elements(JNIEnv *env, jobject classLoader, jobject dexFileobj)
 
     jint len = env->GetArrayLength(dexElement);
 
-    LOGD("[+]Elements size:%d", len);
+    //LOGD("[+]Elements size:%d", len);
 
     jclass ElementClass = env->FindClass("dalvik/system/DexPathList$Element"); // dalvik/system/DexPathList$Element
     jmethodID Elementinit = env->GetMethodID(ElementClass, "<init>",
@@ -270,7 +270,7 @@ void make_dex_elements(JNIEnv *env, jobject classLoader, jobject dexFileobj)
 } // make_dex_elements
 
 // For Nougat
-void replace_cookie_N(JNIEnv *env, jobject mini_dex_obj, jlong value)
+__attribute__ ((visibility ("hidden"))) void replace_cookie_N(JNIEnv *env, jobject mini_dex_obj, jlong value)
 {
     jclass DexFileClass = env->FindClass("dalvik/system/DexFile"); // "dalvik/system/DexPathList$Element"
     jfieldID field_mCookie;
@@ -281,7 +281,7 @@ void replace_cookie_N(JNIEnv *env, jobject mini_dex_obj, jlong value)
 
     jboolean is_data_copy = 1;
     jsize arraylen = env->GetArrayLength((jarray)mCookie);
-    LOGD("[+]g_sdk_int:%d,cookie arrayLen:%d", g_sdk_int, arraylen);
+    //LOGD("[+]g_sdk_int:%d,cookie arrayLen:%d", g_sdk_int, arraylen);
 
     jlong *mix_element = env->GetLongArrayElements((jlongArray)mCookie, &is_data_copy);
     jlong *c_dex_cookie = (jlong *)value;
@@ -292,7 +292,7 @@ void replace_cookie_N(JNIEnv *env, jobject mini_dex_obj, jlong value)
     env->ReleaseLongArrayElements((jlongArray)mCookie, mix_element, 0);
     if (env->ExceptionCheck())
     {
-        LOGE("[-]g_sdk_int:%d Update cookie failed", g_sdk_int);
+        //LOGE("[-]g_sdk_int:%d Update cookie failed", g_sdk_int);
         return;
     }
 
@@ -300,10 +300,10 @@ void replace_cookie_N(JNIEnv *env, jobject mini_dex_obj, jlong value)
     jlong ptr = *(second_mix_element + 1);
     int dexbase = *(int *)(ptr + 4);
     int dexsize = *(int *)(ptr + 8);
-    LOGD("[+]Nougat after replace cookie dex base:%x,dexsize:%x", dexbase, dexsize);
+    //LOGD("[+]Nougat after replace cookie dex base:%x,dexsize:%x", dexbase, dexsize);
 }
 
-void replace_cookie_M(JNIEnv *env, jobject mini_dex_obj, jlong value)
+__attribute__ ((visibility ("hidden"))) void replace_cookie_M(JNIEnv *env, jobject mini_dex_obj, jlong value)
 {
     jclass DexFileClass = env->FindClass("dalvik/system/DexFile"); // "dalvik/system/DexPathList$Element"
     jfieldID field_mCookie;
@@ -314,7 +314,7 @@ void replace_cookie_M(JNIEnv *env, jobject mini_dex_obj, jlong value)
 
     jboolean is_data_copy = 1;
     jsize arraylen = env->GetArrayLength((jarray)mCookie);
-    LOGD("[+]g_sdk_int:%d,cookie arrayLen:%d", g_sdk_int, arraylen);
+    //LOGD("[+]g_sdk_int:%d,cookie arrayLen:%d", g_sdk_int, arraylen);
 
     jlong *mix_element = env->GetLongArrayElements((jlongArray)mCookie, &is_data_copy);
 
@@ -322,12 +322,7 @@ void replace_cookie_M(JNIEnv *env, jobject mini_dex_obj, jlong value)
     int ptr = *(int *)mix_element;
     int dexbase = *(int *)(ptr + 4);
     int dexsize = *(int *)(ptr + 8);
-    LOGD("[+]mini dex array len :%d,dex magic:%x,dexsize:%x", arraylen, *(int *)dexbase, dexsize);
-<<<<<<< HEAD
-    
-=======
-
->>>>>>> 4d37ff2c39bd63738806b5f1d4fd10895e624d31
+    //LOGD("[+]mini dex array len :%d,dex magic:%x,dexsize:%x", arraylen, *(int *)dexbase, dexsize);
     // very important
     // jlong* tmp=mix_element;
     // *tmp=*c_dex_cookie;
@@ -337,18 +332,18 @@ void replace_cookie_M(JNIEnv *env, jobject mini_dex_obj, jlong value)
     env->ReleaseLongArrayElements((jlongArray)mCookie, mix_element, 0);
     if (env->ExceptionCheck())
     {
-        LOGE("[-]g_sdk_int:%d Update cookie failed", g_sdk_int);
+        //LOGE("[-]g_sdk_int:%d Update cookie failed", g_sdk_int);
         return;
     }
     jlong *second_mix_element = env->GetLongArrayElements((jlongArray)mCookie, &is_data_copy);
     ptr = *(int *)second_mix_element;
     dexbase = *(int *)(ptr + 4);
     dexsize = *(int *)(ptr + 8);
-    LOGD("[+]second minidex dex dex magic:%x,dexsize:%x", *(int *)dexbase, dexsize);
-    LOGD("[+]replace_cookie_one successful");
+    //LOGD("[+]second minidex dex dex magic:%x,dexsize:%x", *(int *)dexbase, dexsize);
+    //LOGD("[+]replace_cookie_one successful");
 } // replace_cookie_M
 
-char *get_path_frommaps(const char *pkgName, char *buffer, char *filter1, char *filter2)
+__attribute__ ((visibility ("hidden"))) char *get_path_frommaps(const char *pkgName, char *buffer, char *filter1, char *filter2)
 {
     int pid = getpid();
     char map[256] = {0};
@@ -357,7 +352,7 @@ char *get_path_frommaps(const char *pkgName, char *buffer, char *filter1, char *
     FILE *fd = fopen(map, "r");
     if (!fd)
     {
-        LOGE("[-]open %s failed", map);
+        //LOGE("[-]open %s failed", map);
         return NULL;
     }
 
@@ -371,7 +366,7 @@ char *get_path_frommaps(const char *pkgName, char *buffer, char *filter1, char *
         // 寻找带有包名和.dex或.odex的行
         if (strstr(line_buffer, pkgName) && (strstr(line_buffer, filter1) || strstr(line_buffer, filter2)))
         {
-            // LOGD("[+]targt line buffer:%s", line_buffer);
+            // //LOGD("[+]targt line buffer:%s", line_buffer);
             char *p= strchr(line_buffer, '/');
             // 获取需要复制的长度
             // line_buffer结尾是一个换行符
@@ -384,7 +379,7 @@ char *get_path_frommaps(const char *pkgName, char *buffer, char *filter1, char *
     return NULL;
 }
 
-jobject load_dex_fromfile(JNIEnv *env, const char *inPath, const char *outPath)
+__attribute__ ((visibility ("hidden"))) jobject load_dex_fromfile(JNIEnv *env, const char *inPath, const char *outPath)
 {
     jclass DexFileClass = env->FindClass("dalvik/system/DexFile"); // "dalvik/system/DexPathList$Element"
     // new DexFile==loadDex
@@ -395,7 +390,7 @@ jobject load_dex_fromfile(JNIEnv *env, const char *inPath, const char *outPath)
 
     if (env->ExceptionCheck())
     {
-        LOGE("[-]get loadDex methodID  error");
+        //LOGE("[-]get loadDex methodID  error");
         return 0;
     }
     jstring apk = env->NewStringUTF(inPath);
@@ -404,7 +399,7 @@ jobject load_dex_fromfile(JNIEnv *env, const char *inPath, const char *outPath)
     jobject dexobj = env->CallStaticObjectMethod(DexFileClass, init, apk, odex, 0);
     if (env->ExceptionCheck())
     {
-        LOGE("[-]loadDex %s dex failed", inPath);
+        //LOGE("[-]loadDex %s dex failed", inPath);
         return 0;
     }
 
@@ -417,36 +412,36 @@ jobject load_dex_fromfile(JNIEnv *env, const char *inPath, const char *outPath)
     return dexobj;
 }
 
-void *get_lib_handle(const char *lib_path)
+__attribute__ ((visibility ("hidden"))) void *get_lib_handle(const char *lib_path)
 {
     void *handle_art = dlopen(lib_path, RTLD_NOW);
 
     if (!handle_art)
     {
-        LOGE("[-]get %s handle failed:%s", lib_path, dlerror());
+        //LOGE("[-]get %s handle failed:%s", lib_path, dlerror());
         return NULL;
     }
     return handle_art;
 }
 
-void write_file(const char *path, void *buffer, int size)
+__attribute__ ((visibility ("hidden"))) void write_file(const char *path, void *buffer, int size)
 {
     FILE *file = fopen(path, "wb");
 
     if (!file)
     {
-        LOGE("[-]fopen %s error:%s", path, strerror(errno));
+        //LOGE("[-]fopen %s error:%s", path, strerror(errno));
         return;
     }
     int return_write = fwrite(buffer, 1, size, file);
     if (return_write != size)
     {
-        LOGE("[-]fwrite %s error:%s", path, strerror(errno));
+        //LOGE("[-]fwrite %s error:%s", path, strerror(errno));
         fclose(file);
     }
     else
     {
-        LOGE("[+]fwrite decrypt data success");
+        //LOGE("[+]fwrite decrypt data success");
         fflush(file);
         fclose(file);
     }
@@ -463,7 +458,7 @@ void write_file(const char *path, void *buffer, int size)
 
 //     //设置密钥key
 //     memset(Key, 0x00, sizeof(Key));
-//     memcpy(Key, AES_KEYCODE, AES_BLOCK_SIZE);
+//     memcpy(Key, aaaaa, AES_BLOCK_SIZE);
 
 //     int nBei = inLen / AES_BLOCK_SIZE + 1;
 //     int nTotal = nBei * AES_BLOCK_SIZE;
@@ -487,7 +482,7 @@ void write_file(const char *path, void *buffer, int size)
 //     out = (char *)calloc(nTotal + 1, sizeof(char));
 //     if (out == NULL)
 //     {
-//         LOGE("[-]calloc out buffer error");
+//         //LOGE("[-]calloc out buffer error");
 //         exit(-1);
 //     }
 
@@ -496,10 +491,10 @@ void write_file(const char *path, void *buffer, int size)
 //     if (AES_set_encrypt_key(Key, 128, &AesKey) < 0)
 //     {
 //         //fprintf(stderr, "Unable to set encryption key in AES...\n");
-//         LOGE("AES_set_encrypt_key error");
+//         //LOGE("AES_set_encrypt_key error");
 //         exit(-1);
 //     }
-//     memcpy(ivec, AES_IV, 16);
+//     memcpy(ivec, ggggggg, 16);
 
 //     AES_cbc_encrypt((unsigned char *)inputData, (unsigned char *)out,
 //                     nTotal, &AesKey, ivec, AES_ENCRYPT);
@@ -530,19 +525,19 @@ void write_file(const char *path, void *buffer, int size)
 
 //     //设置密钥key
 //     memset(Key, 0x00, sizeof(Key));
-//     memcpy(Key, AES_KEYCODE, AES_BLOCK_SIZE);
+//     memcpy(Key, aaaaa, AES_BLOCK_SIZE);
 //     memset(&AesKey, 0x00, sizeof(AES_KEY));
 //     if (AES_set_decrypt_key(Key, 128, &AesKey) < 0)
 //     { //设置解密密钥
 //         fprintf(stderr, "Unable to set encryption key in AES...\n");
 //         exit(-1);
 //     }
-//     memcpy(ivec, AES_IV, 16);
+//     memcpy(ivec, ggggggg, 16);
 
 //     out = (char *)calloc(inLen + 1, sizeof(char));
 //     if (out == NULL)
 //     {
-//         LOGE("[-]calloc decrypt buffer error");
+//         //LOGE("[-]calloc decrypt buffer error");
 //         exit(-1);
 //     }
 //     //解密
@@ -557,7 +552,7 @@ void write_file(const char *path, void *buffer, int size)
 //     if ((padValue == 0) || (padValue > AES_BLOCK_SIZE))
 //     {
 //         //错误的padding，解密失败
-//         LOGE("[-]decrypt failed");
+//         //LOGE("[-]decrypt failed");
 //         return 0;
 //     }
 //     *outLen = padLen - padValue;
@@ -577,10 +572,10 @@ char *tiny_aes_encrypt_cbc(char *in, int inLen, int *outLen)
 
     //设置密钥key
     memset(Key, 0x00, sizeof(Key));
-    memcpy(Key, AES_KEYCODE, AES_BLOCK_SIZE);
+    memcpy(Key, aaaaa, AES_BLOCK_SIZE);
 
     //设置ivec
-    memcpy(ivec, AES_IV, 16);
+    memcpy(ivec, ggggggg, 16);
 
     int nBei = inLen / AES_BLOCK_SIZE + 1;
     int nTotal = nBei * AES_BLOCK_SIZE;
@@ -609,7 +604,7 @@ char *tiny_aes_encrypt_cbc(char *in, int inLen, int *outLen)
 }
 */
 
-char *tiny_aes_decrypt_cbc(char *in, int inLen, int *outLen)
+__attribute__ ((visibility ("hidden"))) char *tiny_aes_decrypt_cbc(char *in, int inLen, int *outLen)
 {
     #define AES_BLOCK_SIZE 16
 /*
@@ -620,11 +615,11 @@ char *tiny_aes_decrypt_cbc(char *in, int inLen, int *outLen)
 
     //设置密钥key
     memset(Key, 0x00, sizeof(Key));
-    memcpy(Key, AES_KEYCODE, 16);
-    memcpy(ivec, AES_IV, 16);
+    memcpy(Key, aaaaa, 16);
+    memcpy(ivec, ggggggg, 16);
 */
     struct AES_ctx ctx;
-    AES_init_ctx_iv(&ctx, AES_KEYCODE, AES_IV);
+    AES_init_ctx_iv(&ctx, aaaaa, ggggggg);
     AES_CBC_decrypt_buffer(&ctx, (uint8_t *)in, (uint32_t)inLen);
 
     //去掉padding字符串
@@ -632,12 +627,12 @@ char *tiny_aes_decrypt_cbc(char *in, int inLen, int *outLen)
     int padLen = inLen;
     //获取pad的值
     int padValue = in[padLen - 1];
-    LOGD("[+]padValue:%d", padValue);
+    //LOGD("[+]padValue:%d", padValue);
 
     if ((padValue == 0) || (padValue > AES_BLOCK_SIZE))
     {
         //错误的padding，解密失败
-        LOGE("[-]decrypt failed");
+        //LOGE("[-]decrypt failed");
         return 0;
     }
     int realLen = padLen - padValue;
@@ -648,17 +643,17 @@ char *tiny_aes_decrypt_cbc(char *in, int inLen, int *outLen)
     // FILE *file = fopen(saveFile, "wb");
     // fwrite(in, 1, realLen, file);
     // fclose(file);
-    // LOGD("[+]dump.dex saved at %s,size:%d", saveFile, realLen);
+    // //LOGD("[+]dump.dex saved at %s,size:%d", saveFile, realLen);
     return in;
 }
 
-char *parse_file(const char *encrypt_path, int &encrypt_size)
+__attribute__ ((visibility ("hidden"))) char *parse_file(const char *encrypt_path, int &encrypt_size)
 {
     FILE *fp = fopen(encrypt_path, "rb+");
 
     if (!fp)
     {
-        LOGE("[-]fopen %s error:%s", encrypt_path, strerror(errno));
+        //LOGE("[-]fopen %s error:%s", encrypt_path, strerror(errno));
         return NULL;
     }
     fseek(fp, 0L, SEEK_END);
@@ -667,7 +662,7 @@ char *parse_file(const char *encrypt_path, int &encrypt_size)
     char *base = (char *)calloc(encrypt_size + 1, sizeof(char));
     if (!base)
     {
-        LOGE("calloc memory failed");
+        //LOGE("calloc memory failed");
         fclose(fp);
         return NULL;
     }
@@ -676,7 +671,7 @@ char *parse_file(const char *encrypt_path, int &encrypt_size)
     return base;
 }
 
-void *openmemory_load_dex(void *art_handle, char *base, size_t size, int sdk_int)
+__attribute__ ((visibility ("hidden"))) void *openmemory_load_dex(void *art_handle, char *base, size_t size, int sdk_int)
 {
     void *c_dex_cookie;
     switch (sdk_int)
@@ -719,14 +714,14 @@ void *openmemory_load_dex(void *art_handle, char *base, size_t size, int sdk_int
     return c_dex_cookie;
 }
 
-void replace_cookie(JNIEnv *env, jobject mini_dex_obj, void *c_dex_cookie, int sdk_int)
+__attribute__ ((visibility ("hidden"))) void replace_cookie(JNIEnv *env, jobject mini_dex_obj, void *c_dex_cookie, int sdk_int)
 {
     jfieldID cookie_field;
     jclass DexFileClass = env->FindClass("dalvik/system/DexFile");
     if (sdk_int == 19)
     {
         cookie_field = env->GetFieldID(DexFileClass, "mCookie", "I");
-        LOGD("[+]sdk_int:%d,cookie_field:%p", g_sdk_int, cookie_field);
+        //LOGD("[+]sdk_int:%d,cookie_field:%p", g_sdk_int, cookie_field);
         env->SetIntField(mini_dex_obj, cookie_field, (int)(long)c_dex_cookie);
     }
     else if ((sdk_int == 21) || (sdk_int == 22))
@@ -744,7 +739,7 @@ void replace_cookie(JNIEnv *env, jobject mini_dex_obj, void *c_dex_cookie, int s
         // cookie_field = env->GetFieldID(DexFileClass, "mCookie", "Ljava/lang/Object;");
         // dex_files.get()->push_back(c_dex_cookie);
         // jlong mCookie = static_cast<jlong>(reinterpret_cast<uintptr_t>(dex_files.release()));
-        // LOGD("c_dex_cookie:%x,mCookie:%x",c_dex_cookie,mCookie);
+        // //LOGD("c_dex_cookie:%x,mCookie:%x",c_dex_cookie,mCookie);
         // env->SetObjectField(mini_dex_obj, cookie_field, (jobject)mCookie);
         replace_cookie_M(env, mini_dex_obj, (jlong)c_dex_cookie);
     }
@@ -755,12 +750,12 @@ void replace_cookie(JNIEnv *env, jobject mini_dex_obj, void *c_dex_cookie, int s
     }
 }
 
-jobject hook_load_dex_internally(JNIEnv *env, const char *art_path, char *inPath, char *outPath)
+__attribute__ ((visibility ("hidden"))) jobject hook_load_dex_internally(JNIEnv *env, const char *art_path, char *inPath, char *outPath)
 {
     void *art_base = get_module_base(getpid(), art_path);
     if (!art_base)
     {
-        LOGE("[-]get lib %s base failed", art_path);
+        //LOGE("[-]get lib %s base failed", art_path);
         return NULL;
     }
 
@@ -768,7 +763,7 @@ jobject hook_load_dex_internally(JNIEnv *env, const char *art_path, char *inPath
     ElfReader elfReader(art_path, art_base);
     if (0 != elfReader.parse())
     {
-        LOGE("failed to parse %s in %d maps at %p", LIB_ART_PATH, getpid(), art_base);
+        //LOGE("failed to parse %s in %d maps at %p", LIB_ART_PATH, getpid(), art_base);
         return NULL;
     }
     elfReader.hook("open", (void *)new_open, (void **)&old_open);
@@ -778,9 +773,9 @@ jobject hook_load_dex_internally(JNIEnv *env, const char *art_path, char *inPath
     elfReader.hook("__read_chk", (void *)new_read_chk, (void **)&old_read_chk);
     elfReader.hook("fstat", (void *)new_fstat, (void **)&old_fstat);
     elfReader.hook("fork", (void *)new_fork, (void **)&old_fork);
-    LOGD("[+]Load fake dex inPath:%s,outPath:%s", inPath, outPath);
+    //LOGD("[+]Load fake dex inPath:%s,outPath:%s", inPath, outPath);
     jobject faked_dex_obj = load_dex_fromfile(env, inPath, outPath);
-    LOGD("[+]Load fake dex finished");
+    //LOGD("[+]Load fake dex finished");
     //恢复fork和fstat的hook
     elfReader.hook("fork", (void *)old_fork, (void **)&old_fork);
     elfReader.hook("fstat", (void *)old_fstat, (void **)&old_fstat);
@@ -789,7 +784,7 @@ jobject hook_load_dex_internally(JNIEnv *env, const char *art_path, char *inPath
 }
 
 
-void mem_loadDex(JNIEnv *env, jobject ctx, const char *dex_path)
+__attribute__ ((visibility ("hidden"))) void mem_loadDex(JNIEnv *env, jobject ctx, const char *dex_path)
 {
     char inPath[256] = {0};
     char outPath[256] = {0};
@@ -803,19 +798,19 @@ void mem_loadDex(JNIEnv *env, jobject ctx, const char *dex_path)
     char szDexPath[256] = {0};
 
     sprintf((char *)szDexPath, dex_path, strlen(dex_path));
-    LOGD("[+]Dex Path:%s", szDexPath);
+    //LOGD("[+]Dex Path:%s", szDexPath);
     //读取加密dex
     int encrypt_size;
     char *encrypt_buffer = parse_file(szDexPath, encrypt_size);
     //check dex size
     if (!encrypt_size)
     {
-        LOGE("[-]encrypt_size is 0");
+        //LOGE("[-]encrypt_size is 0");
         exit(-1);
     }
     else if (encrypt_size % 16)
     {
-        LOGE("[-]encrypt_size is not mutiple 16");
+        //LOGE("[-]encrypt_size is not mutiple 16");
         exit(-1);
     }
 
@@ -824,17 +819,17 @@ void mem_loadDex(JNIEnv *env, jobject ctx, const char *dex_path)
     close(zero);
     if (g_decrypt_base == MAP_FAILED)
     {
-        LOGE("[-]ANONYMOUS mmap failed:%s", strerror(errno));
+        //LOGE("[-]ANONYMOUS mmap failed:%s", strerror(errno));
         exit(-1);
     }
-    //LOGD("[+]ANONYMOUS mmap addr:%p", g_decrypt_base);
+    ////LOGD("[+]ANONYMOUS mmap addr:%p", g_decrypt_base);
     char decrypt_path[256] = {0};
     sprintf((char *)decrypt_path, "%s/decrypt.dat", g_jiagu_dir);
     //char *decrypt_buffer = aes_decrypt_cbc(encrypt_buffer, encrypt_size, &g_dex_size);
     char *decrypt_buffer = tiny_aes_decrypt_cbc(encrypt_buffer, encrypt_size, &g_dex_size);
     if (!decrypt_buffer)
     {
-        LOGE("[-]aes_decrypt_cbc decrypt dex failed");
+        //LOGE("[-]aes_decrypt_cbc decrypt dex failed");
         exit(-1);
     }
 
@@ -842,12 +837,12 @@ void mem_loadDex(JNIEnv *env, jobject ctx, const char *dex_path)
     g_page_size = PAGE_END(g_dex_size);
     free(decrypt_buffer);
 
-    LOGD("[+]After decrypt dex magic:0x%x,size:%d,page_size:%d", *(int *)g_decrypt_base, g_dex_size, g_page_size);
+    //LOGD("[+]After decrypt dex magic:0x%x,size:%d,page_size:%d", *(int *)g_decrypt_base, g_dex_size, g_page_size);
 
     if (!g_isArt)
     {
         jint mCookie = mem_loadDex_dvm(env, (char *)szDexPath);
-        LOGD("[+]Dalvik dex cookie :0x%x", mCookie);
+        //LOGD("[+]Dalvik dex cookie :0x%x", mCookie);
         jclass DexFileClass = env->FindClass("dalvik/system/DexFile");
         jfieldID cookie_field = env->GetFieldID(DexFileClass, "mCookie", "I");
         //replace cookie
@@ -864,35 +859,35 @@ void mem_loadDex(JNIEnv *env, jobject ctx, const char *dex_path)
         if (g_ArtHandle)
         {
             c_dex_cookie = openmemory_load_dex(g_ArtHandle, (char *)g_decrypt_base, (size_t)g_dex_size, g_sdk_int);
-            LOGD("[+]sdk_int :%d,c_dex_cookie:%p", g_sdk_int, c_dex_cookie);
+            //LOGD("[+]sdk_int :%d,c_dex_cookie:%p", g_sdk_int, c_dex_cookie);
             if (c_dex_cookie)
             {
                 // 加载mini.dex
                 mini_dex_obj = load_dex_fromfile(env, inPath, outPath);
                 replace_cookie(env, mini_dex_obj, c_dex_cookie, g_sdk_int);
                 make_dex_elements(env, classLoader, mini_dex_obj);
-                LOGD("[+]using fast plan load dex finished");
+                //LOGD("[+]using fast plan load dex finished");
             }
             else
             {
                 // 执行方案二
-                LOGD("[-]get c_dex_cookie failed! Try second plan");
+                //LOGD("[-]get c_dex_cookie failed! Try second plan");
                 goto label;
             }
         }
         else
         {
-            LOGD("[-]get art handle failed! Try second plan");
+            //LOGD("[-]get art handle failed! Try second plan");
         label:
             // get_path_frommaps(g_pkgName, (char *)g_fake_dex_path, (char *)".dex", (char *)".odex");
             // pkgName
             sprintf((char*)g_fake_dex_magic,"%s/mini.dex",PACKER_MAGIC);
-            LOGD("[+]g_faked_dex_magic:%s",(char*)g_fake_dex_magic);
+            //LOGD("[+]g_faked_dex_magic:%s",(char*)g_fake_dex_magic);
             // 加载fake_dex
             mini_dex_obj = hook_load_dex_internally(env, (const char *)LIB_ART_PATH, (char *)inPath, outPath);
             
             make_dex_elements(env, classLoader, mini_dex_obj);
-            LOGD("[+]using second plan load dex finished");
+            //LOGD("[+]using second plan load dex finished");
         }
 
         if (g_ArtHandle)
@@ -906,9 +901,9 @@ void mem_loadDex(JNIEnv *env, jobject ctx, const char *dex_path)
 void native_attachBaseContext(JNIEnv *env, jobject thiz, jobject ctx)
 {
 #if defined(__arm__)
-    LOGD("[+]Running arm libdexload");
+    //LOGD("[+]Running arm libdexload");
 #elif defined(__aarch64__)
-    LOGD("[+]Running aarch64 libdexload");
+    //LOGD("[+]Running aarch64 libdexload");
 
 #endif
 
@@ -922,7 +917,7 @@ void native_attachBaseContext(JNIEnv *env, jobject thiz, jobject ctx)
 
     g_file_dir = env->GetStringUTFChars(data_file_dir, NULL);
     //g_file_dir_backup=g_file_dir;
-    LOGD("[+]FilesDir:%s", g_file_dir);
+    //LOGD("[+]FilesDir:%s", g_file_dir);
     env->DeleteLocalRef(data_file_dir);
     env->DeleteLocalRef(File_obj);
     env->DeleteLocalRef(FileClass);
@@ -936,7 +931,7 @@ void native_attachBaseContext(JNIEnv *env, jobject thiz, jobject ctx)
     jstring nativeLibraryDir = (jstring)(env->GetObjectField(ApplicationInfo_obj, nativeLibraryDir_field));
 
     g_NativeLibDir = env->GetStringUTFChars(nativeLibraryDir, NULL);
-    LOGD("[+]NativeLibDir:%s", g_NativeLibDir);
+    //LOGD("[+]NativeLibDir:%s", g_NativeLibDir);
 
     env->DeleteLocalRef(nativeLibraryDir);
     env->DeleteLocalRef(ApplicationInfoClass);
@@ -948,26 +943,26 @@ void native_attachBaseContext(JNIEnv *env, jobject thiz, jobject ctx)
     jstring mPackageFilePath = static_cast<jstring>(env->CallObjectMethod(ctx, getPackageResourcePath));
     const char *cmPackageFilePath = env->GetStringUTFChars(mPackageFilePath, NULL);
     g_PackageResourcePath = const_cast<char *>(cmPackageFilePath);
-    LOGD("[+]PackageResourcePath:%s", g_PackageResourcePath);
+    //LOGD("[+]PackageResourcePath:%s", g_PackageResourcePath);
     env->DeleteLocalRef(mPackageFilePath);
 
     jmethodID getPackageName = env->GetMethodID(ApplicationClass, "getPackageName", "()Ljava/lang/String;");
     jstring PackageName = static_cast<jstring>(env->CallObjectMethod(ctx, getPackageName));
     const char *packagename = env->GetStringUTFChars(PackageName, NULL);
     g_pkgName = (char *)packagename;
-    LOGD("[+]g_pkgName :%s", g_pkgName);
+    //LOGD("[+]g_pkgName :%s", g_pkgName);
     env->DeleteLocalRef(PackageName);
 
     char jiaguPath[256] = {0}; // 加密dex的存储路径
 
     sprintf(g_jiagu_dir, "%s/%s", g_file_dir, PACKER_MAGIC);
     sprintf(jiaguPath, "%s/%s", g_jiagu_dir, JIAMI_MAGIC);
-    LOGD("[+]g_jiagu_dir:%s,jiaguPath:%s", g_jiagu_dir, jiaguPath);
+    //LOGD("[+]g_jiagu_dir:%s,jiaguPath:%s", g_jiagu_dir, jiaguPath);
     if (access(g_jiagu_dir, F_OK) != 0)
     {
         if (mkdir(g_jiagu_dir, 0755) == -1)
         {
-            LOGE("[-]mkdir %s error:%s", g_jiagu_dir, strerror(errno));
+            //LOGE("[-]mkdir %s error:%s", g_jiagu_dir, strerror(errno));
         }
     }
     //　Extract encrypted dex from assets directory
@@ -977,18 +972,18 @@ void native_attachBaseContext(JNIEnv *env, jobject thiz, jobject ctx)
 
 void native_onCreate(JNIEnv *env, jobject thiz, jobject instance)
 {
-    LOGD("[+]native onCreate is called");
+    //LOGD("[+]native onCreate is called");
     jclass ProxyApplicationClass = env->GetObjectClass(instance);
     jmethodID getPackageManager = env->GetMethodID(ProxyApplicationClass, "getPackageManager", "()Landroid/content/pm/PackageManager;");
     if (env->ExceptionCheck())
     {
-        LOGE("[-]find getPackageManager methodID failed");
+        //LOGE("[-]find getPackageManager methodID failed");
         return;
     }
     jobject packageManager = env->CallObjectMethod(instance, getPackageManager);
     if (env->ExceptionCheck())
     {
-        LOGE("[-]call getPackageManager method failed");
+        //LOGE("[-]call getPackageManager method failed");
         return;
     }
     jmethodID pmGetApplicationInfo = env->GetMethodID(env->GetObjectClass(packageManager), "getApplicationInfo", "(Ljava/lang/String;I)Landroid/content/pm/ApplicationInfo;");
@@ -1001,7 +996,7 @@ void native_onCreate(JNIEnv *env, jobject thiz, jobject instance)
     jobject metaData = env->GetObjectField(pmAppInfo, metaDataField);
     if (metaData == NULL)
     {
-        LOGE("[-]not found meta Bundle");
+        //LOGE("[-]not found meta Bundle");
         return;
     }
 
@@ -1010,60 +1005,60 @@ void native_onCreate(JNIEnv *env, jobject thiz, jobject instance)
     jstring originApplicationName = (jstring)env->CallObjectMethod(metaData, bundleGetString, env->NewStringUTF("APP_NAME"));
     if (originApplicationName == NULL)
     {
-        LOGE("[-]not found original Application Name");
+        //LOGE("[-]not found original Application Name");
         return;
     }
-    LOGD("[+]original Application Name : %s", env->GetStringUTFChars(originApplicationName, NULL));
+    //LOGD("[+]original Application Name : %s", env->GetStringUTFChars(originApplicationName, NULL));
 
     //将LoadedApk中的mApplication对象替换
     jclass ActivityThreadClass = env->FindClass("android/app/ActivityThread");
     jmethodID currentActivityThread = env->GetStaticMethodID(ActivityThreadClass, "currentActivityThread", "()Landroid/app/ActivityThread;");
     jobject activityThread = env->CallStaticObjectMethod(ActivityThreadClass, currentActivityThread);
-    LOGE("get ActivityThreadClass");
+    //LOGE("get ActivityThreadClass");
     //得到AppBindData
     jfieldID mBoundApplicationField = env->GetFieldID(ActivityThreadClass, "mBoundApplication", "Landroid/app/ActivityThread$AppBindData;");
     jobject mBoundApplication = env->GetObjectField(activityThread, mBoundApplicationField);
-    LOGE("get AppBindData");
+    //LOGE("get AppBindData");
     //得到LoadedApk
     jfieldID infoField = env->GetFieldID(env->GetObjectClass(mBoundApplication), "info", "Landroid/app/LoadedApk;");
     jobject info = env->GetObjectField(mBoundApplication, infoField);
-    LOGE("get LoadedApk");
+    //LOGE("get LoadedApk");
     //把LoadedApk中的成员变量private Application mApplication;置空
     jfieldID mApplicationField = env->GetFieldID(env->GetObjectClass(info), "mApplication", "Landroid/app/Application;");
     env->SetObjectField(info, mApplicationField, NULL);
-    LOGE("mApplication set null");
+    //LOGE("mApplication set null");
     //得到壳Application
     jfieldID mInitialApplicationField = env->GetFieldID(ActivityThreadClass, "mInitialApplication", "Landroid/app/Application;");
     jobject mInitialApplication = env->GetObjectField(activityThread, mInitialApplicationField);
-    LOGE("get packer Application");
+    //LOGE("get packer Application");
 
     //将壳Application移除
     jfieldID mAllApplicationsField = env->GetFieldID(ActivityThreadClass, "mAllApplications", "Ljava/util/ArrayList;");
     jobject mAllApplications = env->GetObjectField(activityThread, mAllApplicationsField);
     jmethodID remove = env->GetMethodID(env->GetObjectClass(mAllApplications), "remove", "(Ljava/lang/Object;)Z");
     env->CallBooleanMethod(mAllApplications, remove, mInitialApplication);
-    LOGE("remove packer Application");
+    //LOGE("remove packer Application");
     //得到AppBindData中的ApplicationInfo
     jfieldID appInfoField = env->GetFieldID(env->GetObjectClass(mBoundApplication), "appInfo", "Landroid/content/pm/ApplicationInfo;");
     jobject appInfo = env->GetObjectField(mBoundApplication, appInfoField);
-    LOGE("get AppBindData's ApplicationInfo");
+    //LOGE("get AppBindData's ApplicationInfo");
     //得到LoadedApk中的ApplicationInfo
     jfieldID mApplicationInfoField = env->GetFieldID(env->GetObjectClass(info), "mApplicationInfo", "Landroid/content/pm/ApplicationInfo;");
     jobject mApplicationInfo = env->GetObjectField(info, mApplicationInfoField);
-    LOGE("get LoadedApk's ApplicationInfo");
+    //LOGE("get LoadedApk's ApplicationInfo");
     //替换掉ApplicationInfo中的className
     jfieldID classNameField = env->GetFieldID(env->GetObjectClass(appInfo), "className", "Ljava/lang/String;");
     env->SetObjectField(appInfo, classNameField, originApplicationName);
     env->SetObjectField(mApplicationInfo, classNameField, originApplicationName);
-    LOGE("replace ApplicationInfo's className");
+    //LOGE("replace ApplicationInfo's className");
     //创建新的Application
     jmethodID makeApplication = env->GetMethodID(env->GetObjectClass(info), "makeApplication", "(ZLandroid/app/Instrumentation;)Landroid/app/Application;");
     //这里调用原始app的attacheBaseContext
     jobject originApp = env->CallObjectMethod(info, makeApplication, false, NULL);
-    LOGE("create new Application");
+    //LOGE("create new Application");
     //将句柄赋值到mInitialApplicationField
     env->SetObjectField(activityThread, mInitialApplicationField, originApp);
-    LOGE("set object mInitialApplicationField");
+    //LOGE("set object mInitialApplicationField");
     jfieldID mProviderMapField;
     if (g_sdk_int < 19)
     {
@@ -1075,12 +1070,12 @@ void native_onCreate(JNIEnv *env, jobject thiz, jobject instance)
     }
     if (mProviderMapField == NULL)
     {
-        LOGE("not found mProviderMapField");
+        //LOGE("not found mProviderMapField");
         return;
     }
-    LOGE("found mProviderMapField");
+    //LOGE("found mProviderMapField");
     jobject mProviderMap = env->GetObjectField(activityThread, mProviderMapField);
-    LOGE("found mProviderMap");
+    //LOGE("found mProviderMap");
     jmethodID values = env->GetMethodID(env->GetObjectClass(mProviderMap), "values", "()Ljava/util/Collection;");
     jobject collections = env->CallObjectMethod(mProviderMap, values);
     jmethodID iterator = env->GetMethodID(env->GetObjectClass(collections), "iterator", "()Ljava/util/Iterator;");
@@ -1089,32 +1084,32 @@ void native_onCreate(JNIEnv *env, jobject thiz, jobject instance)
     jmethodID next = env->GetMethodID(env->GetObjectClass(mIterator), "next", "()Ljava/lang/Object;");
 
     //替换所有ContentProvider中的Context
-    LOGE("ready replace all ContentProvider's context");
+    //LOGE("ready replace all ContentProvider's context");
     while (env->CallBooleanMethod(mIterator, hasNext))
     {
         jobject providerClientRecord = env->CallObjectMethod(mIterator, next);
         if (providerClientRecord == NULL)
         {
-            LOGE("providerClientRecord = NULL");
+            //LOGE("providerClientRecord = NULL");
             continue;
         }
         jclass ProviderClientRecordClass = env->FindClass("android/app/ActivityThread$ProviderClientRecord");
         jfieldID mLocalProviderField = env->GetFieldID(ProviderClientRecordClass, "mLocalProvider", "Landroid/content/ContentProvider;");
         if (mLocalProviderField == NULL)
         {
-            LOGE("mLocalProviderField not found");
+            //LOGE("mLocalProviderField not found");
             continue;
         }
         jobject mLocalProvider = env->GetObjectField(providerClientRecord, mLocalProviderField);
         if (mLocalProvider == NULL)
         {
-            LOGE("mLocalProvider is NULL");
+            //LOGE("mLocalProvider is NULL");
             continue;
         }
         jfieldID mContextField = env->GetFieldID(env->GetObjectClass(mLocalProvider), "mContext", "Landroid/content/Context;");
         if (mContextField == NULL)
         {
-            LOGE("mContextField not found");
+            //LOGE("mContextField not found");
             continue;
         }
         env->SetObjectField(mLocalProvider, mContextField, originApp);
@@ -1123,7 +1118,7 @@ void native_onCreate(JNIEnv *env, jobject thiz, jobject instance)
     //执行originApp的onCreate
     jmethodID onCreate = env->GetMethodID(env->GetObjectClass(originApp), "onCreate", "()V");
     env->CallVoidMethod(originApp, onCreate);
-    LOGD("Packer is done");
+    //LOGD("Packer is done");
 }
 
 void init(JNIEnv *env)
@@ -1132,7 +1127,7 @@ void init(JNIEnv *env)
     jfieldID SDK_INT = env->GetStaticFieldID(jclazz, "SDK_INT", "I");
 
     g_sdk_int = env->GetStaticIntField(jclazz, SDK_INT);
-    LOGD("[+]sdk_int:%d", g_sdk_int);
+    //LOGD("[+]sdk_int:%d", g_sdk_int);
     if (g_sdk_int > 13)
     {
         jclass System = env->FindClass("java/lang/System");
@@ -1144,7 +1139,7 @@ void init(JNIEnv *env)
         char *cvm_version_value = (char *)env->GetStringUTFChars(vm_version_value, NULL);
         double version = atof(cvm_version_value);
         g_isArt = version >= 2 ? true : false;
-        LOGD("[+]Android VmVersion:%f", version);
+        //LOGD("[+]Android VmVersion:%f", version);
 
         env->ReleaseStringUTFChars(vm_version_value, cvm_version_value);
         env->DeleteLocalRef(System);
@@ -1153,7 +1148,7 @@ void init(JNIEnv *env)
     }
     else
     {
-        LOGE("[-]unsupported Android version");
+        //LOGE("[-]unsupported Android version");
         assert(false);
     }
     jniRegisterNativeMethods(env, "com/storm/fengyue/Native",

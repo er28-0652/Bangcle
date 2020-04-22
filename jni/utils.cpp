@@ -39,7 +39,7 @@ unsigned int search_symbol_fromelf(char *lib_path, unsigned int lib_base_addr, c
         return 0;
     }
     short e_phnum = *(short *)(buffer + 0x2C);
-    LOGD("[+]%s->e_phnum:%d", lib_path, e_phnum);
+    // LOGD("[+]%s->e_phnum:%d", lib_path, e_phnum);
     int program_table = buffer + 0x34;
     int program_table_end = program_table + 0x20 * e_phnum;
     unsigned int ptr = program_table;
@@ -73,7 +73,7 @@ unsigned int search_symbol_fromelf(char *lib_path, unsigned int lib_base_addr, c
         {
             pt_load_base = pt_load_base & 0xfffff000;
         }
-        LOGD("[+]pt_load p_vaddr:%08x", pt_load_base);
+        // LOGD("[+]pt_load p_vaddr:%08x", pt_load_base);
     }
     else
     {
@@ -92,7 +92,7 @@ unsigned int search_symbol_fromelf(char *lib_path, unsigned int lib_base_addr, c
             unsigned int file_to_mem_offset = lib_base_addr - pt_load_base;
             // b3d9c000
             unsigned int dynamic_addr = file_to_mem_offset + pt_dynamic_vaddr; // 我的result:b4205ae4
-            LOGD("[+]pt_dynamic_vaddr:%08x,lib_base_addr:%08x,pt_load_based:%08x,ynamic_addr:%08x", pt_dynamic_vaddr,
+            // LOGD("[+]pt_dynamic_vaddr:%08x,lib_base_addr:%08x,pt_load_based:%08x,ynamic_addr:%08x", pt_dynamic_vaddr,
                  lib_base_addr, pt_load_base, dynamic_addr);
             if (dynamic_addr)
             {
@@ -104,36 +104,36 @@ unsigned int search_symbol_fromelf(char *lib_path, unsigned int lib_base_addr, c
                     {
                     case DT_SYMTAB:
                         symtab_addr = file_to_mem_offset + *(next - 1);
-                        // LOGD("[+]symtab_addr offset:%08x",*(next - 1));//0xB1C0
+                        // // LOGD("[+]symtab_addr offset:%08x",*(next - 1));//0xB1C0
                         break;
 
                     case DT_STRSZ:
                         strsz_addr = *(next - 1);
-                        // LOGD("[+]strsz_addr offset:%08x",*(next - 1));//0x61797
+                        // // LOGD("[+]strsz_addr offset:%08x",*(next - 1));//0x61797
                         break;
 
                     case DT_STRTAB:
                         strtab_addr = file_to_mem_offset + *(next - 1); // 0x22f00
-                        // LOGD("[+]strtab_addr offset:%08x",*(next - 1));
+                        // // LOGD("[+]strtab_addr offset:%08x",*(next - 1));
                         break;
                     }
                     d_tag = *next;
                     next += 2;
                 } while (d_tag);
-                LOGD("[+]find strtab:%08x,symtab,%08x", strtab_addr, symtab_addr);
+                // LOGD("[+]find strtab:%08x,symtab,%08x", strtab_addr, symtab_addr);
                 int p_sym = symtab_addr;
                 while (memcmp((char *)(strtab_addr + *(int *)(p_sym)), target, strlen(target)) != 0)
                 {
                     if ((unsigned int)p_sym >= strtab_addr)
                     {
-                        LOGE("[-]Unexcepted symtab>=strtab");
+                        // LOGE("[-]Unexcepted symtab>=strtab");
                         result = 0;
                         goto label;
                     }
                     p_sym += 16;
                 }
                 result = file_to_mem_offset + *(unsigned int *)(p_sym + 4);
-                LOGD("[+]get %s addr:%08x", target, result);
+                // LOGD("[+]get %s addr:%08x", target, result);
                 break;
             }
         }
@@ -153,24 +153,24 @@ void *get_addr_symbol(char *module_name, char *target_symbol)
 
     if (!module_base)
     {
-        LOGE("[-]get module %s base failed", module_name);
+        // LOGE("[-]get module %s base failed", module_name);
         return 0;
     }
     void *result = (void *)search_symbol_fromelf(module_name, (unsigned int)module_base, target_symbol);
     if (!result)
     {
-        LOGE("[-]search symbol %s from %s failed", target_symbol, module_name);
+        // LOGE("[-]search symbol %s from %s failed", target_symbol, module_name);
         return NULL;
     }
     return result;
 }
 #endif
 
-int extract_file(JNIEnv *env, jobject ctx, const char *szDexPath, const char *fileName)
+__attribute__ ((visibility ("hidden"))) int extract_file(JNIEnv *env, jobject ctx, const char *szDexPath, const char *fileName)
 {
     if (access(szDexPath, F_OK) == 0)
     {
-        LOGD("[+]File %s have existed", szDexPath);
+        // LOGD("[+]File %s have existed", szDexPath);
         return 0;
     }
     // jiami.dat does not exist, start extraction
@@ -184,13 +184,13 @@ int extract_file(JNIEnv *env, jobject ctx, const char *szDexPath, const char *fi
         mgr = AAssetManager_fromJava(env, Assets_obj);
         if (mgr == NULL)
         {
-            LOGE("[-]getAAssetManager failed");
+            // LOGE("[-]getAAssetManager failed");
             return 0;
         }
         AAsset *asset = AAssetManager_open(mgr, fileName, AASSET_MODE_STREAMING);
         FILE *file = fopen(szDexPath, "wb");
         int bufferSize = AAsset_getLength(asset);
-        LOGD("[+]Asset FileName:%s,extract path:%s,size:%d\n", fileName, szDexPath, bufferSize);
+        // LOGD("[+]Asset FileName:%s,extract path:%s,size:%d\n", fileName, szDexPath, bufferSize);
         void *buffer = malloc(4096);
         while (true)
         {

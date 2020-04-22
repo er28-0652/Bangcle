@@ -215,17 +215,17 @@ static void KeyExpansion(uint8_t *RoundKey, const uint8_t *Key)
   }
 }
 
-void AES_init_ctx(struct AES_ctx *ctx, const uint8_t *key)
+__attribute__ ((visibility ("hidden"))) void AES_init_ctx(struct AES_ctx *ctx, const uint8_t *key)
 {
   KeyExpansion(ctx->RoundKey, key);
 }
 #if (defined(CBC) && (CBC == 1)) || (defined(CTR) && (CTR == 1))
-void AES_init_ctx_iv(struct AES_ctx *ctx, const uint8_t *key, const uint8_t *iv)
+__attribute__ ((visibility ("hidden"))) void AES_init_ctx_iv(struct AES_ctx *ctx, const uint8_t *key, const uint8_t *iv)
 {
   KeyExpansion(ctx->RoundKey, key);
   memcpy(ctx->Iv, iv, AES_BLOCKLEN);
 }
-void AES_ctx_set_iv(struct AES_ctx *ctx, const uint8_t *iv)
+__attribute__ ((visibility ("hidden"))) void AES_ctx_set_iv(struct AES_ctx *ctx, const uint8_t *iv)
 {
   memcpy(ctx->Iv, iv, AES_BLOCKLEN);
 }
@@ -461,13 +461,13 @@ static void InvCipher(state_t *state, uint8_t *RoundKey)
 /*****************************************************************************/
 #if defined(ECB) && (ECB == 1)
 
-void AES_ECB_encrypt(struct AES_ctx *ctx, uint8_t *buf)
+__attribute__ ((visibility ("hidden"))) void AES_ECB_encrypt(struct AES_ctx *ctx, uint8_t *buf)
 {
   // The next function call encrypts the PlainText with the Key using AES algorithm.
   Cipher((state_t *)buf, ctx->RoundKey);
 }
 
-void AES_ECB_decrypt(struct AES_ctx *ctx, uint8_t *buf)
+__attribute__ ((visibility ("hidden"))) void AES_ECB_decrypt(struct AES_ctx *ctx, uint8_t *buf)
 {
   // The next function call decrypts the PlainText with the Key using AES algorithm.
   InvCipher((state_t *)buf, ctx->RoundKey);
@@ -486,7 +486,7 @@ static void XorWithIv(uint8_t *buf, uint8_t *Iv)
   }
 }
 
-void AES_CBC_encrypt_buffer(struct AES_ctx *ctx, uint8_t *buf, uint32_t length)
+__attribute__ ((visibility ("hidden"))) void AES_CBC_encrypt_buffer(struct AES_ctx *ctx, uint8_t *buf, uint32_t length)
 {
   uintptr_t i;
   uint8_t *Iv = ctx->Iv;
@@ -502,7 +502,7 @@ void AES_CBC_encrypt_buffer(struct AES_ctx *ctx, uint8_t *buf, uint32_t length)
   memcpy(ctx->Iv, Iv, AES_BLOCKLEN);
 }
 
-void AES_CBC_decrypt_buffer(struct AES_ctx *ctx, uint8_t *buf, uint32_t length)
+__attribute__ ((visibility ("hidden"))) void AES_CBC_decrypt_buffer(struct AES_ctx *ctx, uint8_t *buf, uint32_t length)
 {
   uintptr_t i;
   uint8_t storeNextIv[AES_BLOCKLEN];
@@ -521,7 +521,7 @@ void AES_CBC_decrypt_buffer(struct AES_ctx *ctx, uint8_t *buf, uint32_t length)
 #if defined(CTR) && (CTR == 1)
 
 /* Symmetrical operation: same function for encrypting as for decrypting. Note any IV/nonce should never be reused with the same key */
-void AES_CTR_xcrypt_buffer(struct AES_ctx *ctx, uint8_t *buf, uint32_t length)
+__attribute__ ((visibility ("hidden"))) void AES_CTR_xcrypt_buffer(struct AES_ctx *ctx, uint8_t *buf, uint32_t length)
 {
   uint8_t buffer[AES_BLOCKLEN];
 
